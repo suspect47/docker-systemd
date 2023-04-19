@@ -1,0 +1,38 @@
+pipeline {
+  agent {
+    kubernetes {
+      //cloud 'kubernetes'
+      label 'jenkins-job'
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: debian
+    image: YOUR_IMAGE
+    command: ["/sbin/init"]
+    tty: true
+    securityContext:
+      privileged: true
+"""
+    }
+  }
+  environment {
+        REPO = "YOUR_ENV"
+    }
+  stages {
+    stage('Build Docker image') {
+      steps {
+    
+        container('debian') {
+          script {
+              sh 'systemctl start docker'
+              sh 'systemctl status docker'
+              sh 'docker images'
+          }
+        
+        }
+      }
+    }
+  }
+}
